@@ -1,0 +1,65 @@
+plugins {
+    id 'java'
+}
+
+group = 'ru.homework'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    testImplementation platform('org.junit:junit-bom:5.13.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.seleniumhq.selenium:selenium-java:4.51.0'
+    testImplementation 'com.codeborne:selenide:7.19.1'
+    testImplementation 'io.rest-assured:rest-assured:5.5.6'
+    testImplementation 'com.fasterxml.jackson.core:jackson-databind:2.19.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    systemProperty 'file.encoding', 'UTF-8'
+    systemProperty 'ui.baseUrl', providers.gradleProperty('baseUrl').orElse(providers.environmentVariable('UI_BASE_URL')).getOrElse('http://localhost:8080')
+    systemProperty 'ui.headless', providers.gradleProperty('headless').getOrElse('true')
+    systemProperty 'ui.username', providers.environmentVariable('API_USERNAME').getOrElse('admin')
+    systemProperty 'ui.password', providers.environmentVariable('API_PASSWORD').getOrElse('secret123')
+    if (project.hasProperty('chromeDriver')) {
+        systemProperty 'webdriver.chrome.driver', project.property('chromeDriver')
+    }
+    if (project.hasProperty('browserBinary')) {
+        systemProperty 'ui.browserBinary', project.property('browserBinary')
+    }
+    if (project.hasProperty('socketDir')) {
+        systemProperty 'jdk.net.unixdomain.tmpdir', project.property('socketDir')
+    }
+    maxParallelForks = 1
+    testLogging {
+        events 'passed', 'failed', 'skipped'
+        exceptionFormat = 'full'
+        showStandardStreams = true
+    }
+    outputs.upToDateWhen { false }
+}
+
+tasks.register('uiTest', Test) {
+    group = 'verification'
+    description = 'Runs all UI tests.'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags 'ui'
+    }
+}

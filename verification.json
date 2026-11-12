@@ -1,0 +1,19 @@
+{
+  "total": 13,
+  "passed": 11,
+  "failed": 2,
+  "skipped": 0,
+  "cleanup": "passed",
+  "defects": [
+    {
+      "id": "CART-001",
+      "summary": "Корзина очищается после обновления страницы",
+      "expectedCartCount": 1,
+      "actualCartCount": 0,
+      "tests": [
+        "ru.homework.selenide.SelenideLectureTest.cartSurvivesPageRefresh",
+        "ru.homework.selenium.SeleniumLectureTest.cartSurvivesPageRefresh"
+      ]
+    }
+  ]
+}
